@@ -1,5 +1,6 @@
 package moe.tlaster.hson
 
+import moe.tlaster.hson.HtmlConvert.deserializeObject
 import moe.tlaster.hson.annotations.HtmlSerializable
 import moe.tlaster.hson.annotations.HtmlSerializer
 import org.jsoup.nodes.Element
@@ -65,7 +66,6 @@ data class SampleWithConverter(
     @HtmlSerializable("a", serializer = SampleConverter::class)
     val data: Instant,
 )
-
 
 data class SampleMultiple(
     @HtmlSerializable("anull", "a")

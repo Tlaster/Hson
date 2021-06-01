@@ -2,10 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.5.10"
+    `maven-publish`
 }
-
-group = "me.tlaster"
-version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -13,9 +11,9 @@ repositories {
 }
 
 dependencies {
+    implementation(kotlin("reflect"))
     implementation("org.jsoup:jsoup:1.13.1")
     testImplementation(kotlin("test"))
-    implementation(kotlin("reflect"))
 }
 
 tasks.test {
@@ -24,4 +22,16 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "moe.tlaster"
+            artifactId = "hson"
+            version = "0.1.0"
+
+            from(components["java"])
+        }
+    }
 }
