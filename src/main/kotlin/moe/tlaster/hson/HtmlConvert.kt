@@ -82,7 +82,7 @@ object HtmlConvert {
         val ctor = annotation.serializer.primaryConstructor
         return if (!annotation.serializer.isAbstract && ctor != null) {
             val converter = ctor.call()
-            converter.decode(element) as Any
+            converter.decode(raw) as Any
         } else {
             when (clazz) {
                 Long::class.java -> raw.toLong()

@@ -13,5 +13,5 @@ annotation class HtmlSerializable(
 )
 
 interface HtmlSerializer<T> {
-    fun decode(element: Element): T
+    fun decode(wholeText: String): T
 }
