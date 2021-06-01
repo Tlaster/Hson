@@ -3,6 +3,7 @@ package moe.tlaster.hson
 import moe.tlaster.hson.HtmlConvert.deserializeObject
 import moe.tlaster.hson.annotations.HtmlSerializable
 import moe.tlaster.hson.annotations.HtmlSerializer
+import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import kotlin.test.assertEquals
@@ -63,7 +64,7 @@ class Test {
 }
 
 class SampleConverter : HtmlSerializer<Instant> {
-    override fun decode(wholeText: String): Instant {
+    override fun decode(element: Element, wholeText: String): Instant {
         return Instant.parse(wholeText)
     }
 }
