@@ -18,6 +18,13 @@ class Test {
     }
 
     @Test
+    fun attrTest() {
+        val html = "<b><a c=\"c\">asd</a></b>"
+        val result = deserializeObject<SampleAttr>(html)
+        assertEquals("c", result.data)
+    }
+
+    @Test
     fun nullableTest() {
         val html = "<b><a>asd</a></b>"
         val result = deserializeObject<SampleNullable>(html)
@@ -77,6 +84,11 @@ data class SampleNullable(
     val data: String,
     @HtmlSerializable("anull")
     val nullData: String? = null,
+)
+
+data class SampleAttr(
+    @HtmlSerializable("a", attr = "c")
+    val data: String,
 )
 
 data class Sample(
