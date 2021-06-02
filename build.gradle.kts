@@ -29,7 +29,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "moe.tlaster"
             artifactId = "hson"
-            version = "0.1.2"
+            version = "0.1.3"
 
             from(components["java"])
         }
