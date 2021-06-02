@@ -1,7 +1,6 @@
 package moe.tlaster.hson.annotations
 
-import org.jsoup.nodes.Element
-import org.jsoup.nodes.Node
+import moe.tlaster.hson.HtmlSerializer
 import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FIELD)
@@ -12,6 +11,3 @@ annotation class HtmlSerializable(
     val serializer: KClass<out HtmlSerializer<*>> = HtmlSerializer::class,
 )
 
-interface HtmlSerializer<T> {
-    fun decode(element: Element, wholeText: String): T
-}

@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.full.primaryConstructor
 
-object HtmlConvert {
+object Hson {
     inline fun <reified T : Any> deserializeObject(html: String): T {
         val doc = Jsoup.parse(html)
         val kClass = T::class
@@ -59,7 +59,7 @@ object HtmlConvert {
 
     private fun Element.select(selector: Array<out String>): List<Element> {
         selector.forEach {
-            val elements = select(it)
+            val elements = select("$it:not(:root)")
             if (elements.any()) {
                 return elements
             }

@@ -1,12 +1,12 @@
 package moe.tlaster.hson
 
-import moe.tlaster.hson.HtmlConvert.deserializeObject
+import moe.tlaster.hson.Hson.deserializeObject
 import moe.tlaster.hson.annotations.HtmlSerializable
-import moe.tlaster.hson.annotations.HtmlSerializer
 import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class Test {
@@ -61,6 +61,16 @@ class Test {
         assert(result.data.isNotEmpty())
         assert(result.data.all { it.data == "asd" })
     }
+
+    @Test
+    fun selfReferenceTest() {
+        val html = "<a>a</a><b><a>b</a></b>"
+        val result = deserializeObject<SampleSelfReference>(html)
+        assertEquals("a", result.data)
+        assertNotNull(result.reference)
+        assertEquals("b", result.reference.data)
+        assertNull(result.reference.reference)
+    }
 }
 
 class SampleConverter : HtmlSerializer<Instant> {
@@ -68,6 +78,13 @@ class SampleConverter : HtmlSerializer<Instant> {
         return Instant.parse(wholeText)
     }
 }
+
+data class SampleSelfReference(
+    @HtmlSerializable("a")
+    val data: String,
+    @HtmlSerializable("b")
+    val reference: SampleSelfReference? = null,
+)
 
 data class SampleWithConverter(
     @HtmlSerializable("a", serializer = SampleConverter::class)
