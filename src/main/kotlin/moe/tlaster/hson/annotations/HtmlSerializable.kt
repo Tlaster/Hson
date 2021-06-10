@@ -3,7 +3,7 @@ package moe.tlaster.hson.annotations
 import moe.tlaster.hson.HtmlSerializer
 import kotlin.reflect.KClass
 
-@Target(AnnotationTarget.FIELD)
+@Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class HtmlSerializable(
     vararg val selector: String,

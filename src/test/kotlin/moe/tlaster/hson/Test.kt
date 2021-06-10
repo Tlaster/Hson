@@ -73,6 +73,7 @@ class Test {
     }
 }
 
+
 class SampleConverter : HtmlSerializer<Instant> {
     override fun decode(element: Element, wholeText: String): Instant {
         return Instant.parse(wholeText)

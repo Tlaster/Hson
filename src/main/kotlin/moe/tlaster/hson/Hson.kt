@@ -4,9 +4,55 @@ import moe.tlaster.hson.annotations.HtmlSerializable
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import java.lang.reflect.ParameterizedType
+import kotlin.reflect.KClass
+import kotlin.reflect.KClassifier
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.primaryConstructor
 
 object Hson {
+    inline fun <reified T : Any> deserializeKData(html: String): T {
+        val doc = Jsoup.parse(html)
+        val kClass = T::class
+        require(kClass.isData)
+        return deserializeKData(doc, kClass) as T
+    }
+
+    fun deserializeKData(element: Element, clazz: KClass<*>): Any {
+        val maps = clazz.primaryConstructor?.parameters
+            ?.filter { it.hasAnnotation<HtmlSerializable>() }
+            ?.associateWith { parameter ->
+                val annotation = parameter.findAnnotation<HtmlSerializable>()
+                requireNotNull(annotation)
+                if (parameter.type.classifier == List::class) {
+                    parameter.type.arguments.firstOrNull()?.let {
+                        it.type?.classifier as? KClass<*>
+                    }?.let { type ->
+                        element.select(annotation.selector).map {
+                            deserialize(it, annotation, type)
+                        }
+                    }
+                } else {
+                    val elements = element.select(annotation.selector)
+                    val classifier = parameter.type.classifier
+                    if (!elements.any() || classifier == null) {
+                        null
+                    } else {
+                        deserialize(elements.first(), annotation, classifier)
+                    }
+                }
+            } ?: emptyMap()
+        val ctor = try {
+            clazz.primaryConstructor
+        } catch (e: NoSuchMethodException) {
+            null
+        } catch (e: SecurityException) {
+            null
+        }
+        requireNotNull(ctor)
+        return ctor.call(*maps.values.toTypedArray())
+    }
+
     inline fun <reified T : Any> deserializeObject(html: String): T {
         val doc = Jsoup.parse(html)
         val kClass = T::class
@@ -66,6 +112,38 @@ object Hson {
         }
         return emptyList()
     }
+
+
+    private fun deserialize(
+        element: Element,
+        annotation: HtmlSerializable,
+        clazz: KClassifier,
+    ): Any {
+        val raw = element.let {
+            if (annotation.attr.isNotEmpty()) {
+                it.attr(annotation.attr)
+            } else {
+                it.wholeText()
+            }
+        }
+        val ctor = annotation.serializer.primaryConstructor
+        return if (!annotation.serializer.isAbstract && ctor != null) {
+            val converter = ctor.call()
+            converter.decode(element, raw) as Any
+        } else {
+            when (clazz) {
+                Long::class -> raw.toLong()
+                Double::class -> raw.toDouble()
+                Float::class -> raw.toFloat()
+                String::class -> raw.toString()
+                Short::class -> raw.toShort()
+                Boolean::class -> raw.toBoolean()
+                UInt::class -> raw.toUInt()
+                else -> deserializeKData(element, clazz as KClass<*>)
+            }
+        }
+    }
+
 
     private fun deserialize(
         element: Element,
